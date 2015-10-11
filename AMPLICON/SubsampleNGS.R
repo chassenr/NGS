@@ -1,0 +1,142 @@
+#documentation start
+#=============================================================================
+# File data
+# creator: Christiane Hassenrück
+# acknowledgements: Alban Ramette
+# primary authority: Christiane Hassenrück
+# other authorities: 
+#=============================================================================
+# File contents
+# function to repeatedly subsample Sample by OTU table to obtain more reliable alpha diversity estimates
+# calculates number of OTU, chao1, inverse Simpson, absolute and relative singletons, absolute doubletons
+#
+# input: 
+# Data - sample by OTU table (samples are columns)
+# n - number of iterations (how many times do you want to subsample)
+# sub - library size (how many sequences per sample)
+#
+# output:
+# list with values (number of OTU, chao1, inverse Simpson, absolute and relative singletons, absolute doubletons)
+#  for each iteration
+# 
+# dependencies:
+#  require(vegan)
+#=============================================================================
+#documentation end
+
+SubsampleNGS <- function(Data, n, sub) {
+  
+  if(!"vegan" %in% installed.packages()) {
+    install.packages("vegan")
+  }
+  require(vegan)
+  
+  
+  output <- list(iterations = list(nOTU = matrix(NA, n, ncol(Data)),
+                                   chao1 = matrix(NA, n, ncol(Data)),
+                                   ace = matrix(NA, n, ncol(Data)),
+                                   invS = matrix(NA, n, ncol(Data)),
+                                   shannon = matrix(NA, n, ncol(Data)),
+                                   SSOabs = matrix(NA, n, ncol(Data)),
+                                   SSOrel = matrix(NA, n, ncol(Data)),
+                                   DSOabs = matrix(NA, n, ncol(Data))),
+                 summaryAlpha = matrix(NA, 8, ncol(Data)),
+                 summaryHill = matrix(NA, 3, ncol(Data)),
+                 summaryHillRaw = matrix(NA, 3, ncol(Data))
+  )
+
+  colnames(output$iterations$nOTU) = 
+    colnames(output$iterations$chao1) = 
+    colnames(output$iterations$ace) = 
+    colnames(output$iterations$invS) = 
+    colnames(output$iterations$shannon) = 
+    colnames(output$iterations$SSOabs) = 
+    colnames(output$iterations$SSOrel) = 
+    colnames(output$iterations$DSOabs) = 
+    colnames(output$summaryAlpha) = 
+    colnames(output$summaryHill) = 
+    colnames(output$summaryHillRaw) = 
+    colnames(Data)
+  
+  rownames(output$summaryAlpha) <- names(output$iterations)
+  rownames(output$summaryHill) <- c("Hill0","Hill1","Hill2")
+  rownames(output$summaryHillRaw) <- c("Hill0","Hill1","Hill2")
+  
+  for(j in 1:n){
+    
+    #subsampling 
+    x_sub <- list()
+    for (i in 1:ncol(Data)) {
+      sub1 <- rep(rownames(Data), Data[, i])
+      sub2 <- sample(sub1, size = sub)
+      x_sub[[i]] <- data.frame(table(sub2))
+      colnames(x_sub[[i]]) <- c("ref.otu","abund")
+    }
+    
+    SampleOTU <- matrix(NA, nrow(Data), length(x_sub))
+    colnames(SampleOTU) <- colnames(Data)
+    rownames(SampleOTU) <- rownames(Data)
+    for (i in 1:length(x_sub)) {
+      ref.otu <- as.character(x_sub[[i]][, 1])
+      SampleOTU[ref.otu, i] <- x_sub[[i]][, 2]
+    }
+    SampleOTU <- SampleOTU[order(rownames(SampleOTU)), ]
+    SampleOTU[is.na(SampleOTU)] <- 0
+    
+    #exclude empty OTUs
+    Data_new <- SampleOTU[!apply(SampleOTU, 1, sum) == 0, ]
+    
+    #nOTU
+    Data01 <- Data_new
+    Data01[Data01 > 0] <- 1
+    nOTU <- apply(Data01, 2, sum)
+    output$iterations$nOTU[j, ] <- nOTU
+    
+    #chao1 + ACE
+    chao1 <- estimateR(t(Data_new))
+    output$iterations$chao1[j, ] <- chao1[2, ]
+    output$iterations$ace[j, ] <- chao1[4, ]
+    
+    #invS + shannon
+    invS <- diversity(t(Data_new), "inv")
+    output$iterations$invS[j, ] <- invS
+    Shannon <- diversity(t(Data_new), "shannon")
+    output$iterations$shannon[j, ] <- Shannon
+    
+    #SSO
+    D <- t(Data_new)
+   
+    SSOabs.D <- D[, apply(D, 2, sum) == 1]
+    SSOabsPerSample <- apply(SSOabs.D, 1, sum)
+    output$iterations$SSOabs[j, ] <- round((SSOabsPerSample / nOTU) * 100, 2)
+    
+    #DSOabs
+    DSOabs.D <- D[, apply(D, 2, sum) == 2]
+    DSOabsPerSample <- apply(DSOabs.D, 1, sum)
+    output$iterations$DSOabs[j, ] <- round((DSOabsPerSample / nOTU) * 100, 2)
+    
+    #SSOrel
+    # removing SSOabs
+    D1 <- D[, -(which(apply(D, 2, sum) == 1))] 
+    # SSOrel should have at least a sample with one sequence alone. See definition.
+    SSOrel.D <- D1[, which(apply(D1, 2, function(x) any(x == 1)) == TRUE)]
+    # SSOrel.D contains the subtable with all SSOrel of the dataset
+    SSOrelPerSample <- apply(SSOrel.D, 1, function(x) sum(x == 1))
+    output$iterations$SSOrel[j, ] <- matrix(round((SSOrelPerSample / nOTU) * 100, 2), nrow(D), 1)
+  }
+  
+  for (i in 1:8) {
+    output$summaryAlpha[i,] <- apply(output$iterations[[i]], 2, mean)
+  }
+  
+  output$summaryHill[1, ] <- output$summaryAlpha["nOTU",]
+  output$summaryHill[2, ] <- exp(output$summaryAlpha["shannon",])
+  output$summaryHill[3, ] <- output$summaryAlpha["invS",]
+  
+  output$summaryHillRaw[1, ] <- colSums(decostand(Data, method = "pa"))
+  output$summaryHillRaw[2, ] <- exp(diversity(t(Data), "shannon"))
+  output$summaryHillRaw[3, ] <- diversity(t(Data), "inv")
+
+  return(output) 
+}
+
