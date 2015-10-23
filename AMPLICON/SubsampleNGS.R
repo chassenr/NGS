@@ -44,7 +44,7 @@ SubsampleNGS <- function(Data, n, sub) {
                  summaryHill = matrix(NA, 3, ncol(Data)),
                  summaryHillRaw = matrix(NA, 3, ncol(Data))
   )
-
+  
   colnames(output$iterations$nOTU) = 
     colnames(output$iterations$chao1) = 
     colnames(output$iterations$ace) = 
@@ -105,24 +105,38 @@ SubsampleNGS <- function(Data, n, sub) {
     
     #SSO
     D <- t(Data_new)
-   
-    SSOabs.D <- D[, apply(D, 2, sum) == 1]
-    SSOabsPerSample <- apply(SSOabs.D, 1, sum)
+    
+    if (sum(apply(D, 2, sum) == 1) >= 1) {
+      SSOabs.D <- data.frame(D[, apply(D, 2, sum) == 1])
+      SSOabsPerSample <- apply(SSOabs.D, 1, sum)
+    } else {
+      SSOabsPerSample <- rep(0, nrow(D))
+    }
     output$iterations$SSOabs[j, ] <- round((SSOabsPerSample / nOTU) * 100, 2)
     
+    
     #DSOabs
-    DSOabs.D <- D[, apply(D, 2, sum) == 2]
-    DSOabsPerSample <- apply(DSOabs.D, 1, sum)
+    if (sum(apply(D, 2, sum) == 2) >= 1) {
+      DSOabs.D <- data.frame(D[, apply(D, 2, sum) == 2])
+      DSOabsPerSample <- apply(DSOabs.D, 1, sum)
+    } else {
+      DSOabsPerSample <- rep(0, nrow(D))
+    }
     output$iterations$DSOabs[j, ] <- round((DSOabsPerSample / nOTU) * 100, 2)
     
     #SSOrel
     # removing SSOabs
-    D1 <- D[, -(which(apply(D, 2, sum) == 1))] 
+    D1 <- D[, apply(D, 2, sum) > 1] 
     # SSOrel should have at least a sample with one sequence alone. See definition.
-    SSOrel.D <- D1[, which(apply(D1, 2, function(x) any(x == 1)) == TRUE)]
-    # SSOrel.D contains the subtable with all SSOrel of the dataset
-    SSOrelPerSample <- apply(SSOrel.D, 1, function(x) sum(x == 1))
-    output$iterations$SSOrel[j, ] <- matrix(round((SSOrelPerSample / nOTU) * 100, 2), nrow(D), 1)
+    if (sum(apply(D1, 2, function(x) any(x == 1)) == TRUE) >= 1) {
+      SSOrel.D <- data.frame(D1[, apply(D1, 2, function(x) any(x == 1)) == TRUE])
+      # SSOrel.D contains the subtable with all SSOrel of the dataset
+      SSOrelPerSample <- apply(SSOrel.D, 1, function(x) sum(x == 1))  
+    } else {
+      SSOrelPerSample <- rep(0, nrow(D))
+    }
+    
+    output$iterations$SSOrel[j, ] <- round((SSOrelPerSample / nOTU) * 100, 2)
   }
   
   for (i in 1:8) {
@@ -136,7 +150,6 @@ SubsampleNGS <- function(Data, n, sub) {
   output$summaryHillRaw[1, ] <- colSums(decostand(Data, method = "pa"))
   output$summaryHillRaw[2, ] <- exp(diversity(t(Data), "shannon"))
   output$summaryHillRaw[3, ] <- diversity(t(Data), "inv")
-
+  
   return(output) 
 }
-
