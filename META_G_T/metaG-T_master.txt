@@ -57,7 +57,7 @@ sample="DNA01"
 #phiX removal
 for i in $sample
 do
-${BBDUK} in=${i}_R1.fastq.gz in2=${i}_R2.fastq.gz out=${i}_trim1_R1.fastq.gz out2=${i}_trim1_R2.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=28 stats=${i}_stats1.txt threads=10
+  ${BBDUK} in=${i}_R1.fastq.gz in2=${i}_R2.fastq.gz out=${i}_trim1_R1.fastq.gz out2=${i}_trim1_R2.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=28 stats=${i}_stats1.txt threads=10
 done
 
 #adapter removal
@@ -70,16 +70,16 @@ done
 for i in $sample
 do
 #to remove the library adaptor (left): removes adapters on 3' and of sequence and trailing bases
-${BBDUK} in=${i}_trim1_R1.fastq.gz in2=${i}_trim1_R2.fastq.gz out=${i}_trim2_R1.fastq.gz out2=${i}_trim2_R2.fastq.gz ref=${ADAPTER} k=27 ktrim=l mink=12 stats=${i}_stats2.txt threads=10
+  ${BBDUK} in=${i}_trim1_R1.fastq.gz in2=${i}_trim1_R2.fastq.gz out=${i}_trim2_R1.fastq.gz out2=${i}_trim2_R2.fastq.gz ref=${ADAPTER} k=27 ktrim=l mink=12 stats=${i}_stats2.txt threads=10
 
 #to remove the library adaptor (right): removes adapters on 5' and of sequence and leading bases
-${BBDUK} in=${i}_trim2_R1.fastq.gz in2=${i}_trim2_R2.fastq.gz out=${i}_trim3_R1.fastq.gz  out2=${i}_trim3_R2.fastq.gz ref=${ADAPTER} k=27 ktrim=r mink=12 stats=${i}_stats3.txt threads=10
+  ${BBDUK} in=${i}_trim2_R1.fastq.gz in2=${i}_trim2_R2.fastq.gz out=${i}_trim3_R1.fastq.gz  out2=${i}_trim3_R2.fastq.gz ref=${ADAPTER} k=27 ktrim=r mink=12 stats=${i}_stats3.txt threads=10
 done
 
 #quality check
 for i in $sample
 do
-${FASTQC} ${i}_trim3_R1.fastq.gz ${i}_trim3_R2.fastq.gz
+  ${FASTQC} ${i}_trim3_R1.fastq.gz ${i}_trim3_R2.fastq.gz
 done
 
 #removal of leading and low quality bases
@@ -89,19 +89,19 @@ done
 #minimum length set to 100bp (min length for fraggenescan)
 for i in $sample
 do
-java -jar ${TRIMMOMATIC} PE -threads 10 -trimlog ${i}_trimlog.txt ${i}_trim3_R1.fastq.gz ${i}_trim3_R2.fastq.gz ${i}_trim4p_R1.fastq.gz ${i}_trim4s_R1.fastq.gz ${i}_trim4p_R2.fastq.gz ${i}_trim4s_R2.fastq.gz HEADCROP:10 SLIDINGWINDOW:4:15 MINLEN:100
+  java -jar ${TRIMMOMATIC} PE -threads 10 -trimlog ${i}_trimlog.txt ${i}_trim3_R1.fastq.gz ${i}_trim3_R2.fastq.gz ${i}_trim4p_R1.fastq.gz ${i}_trim4s_R1.fastq.gz ${i}_trim4p_R2.fastq.gz ${i}_trim4s_R2.fastq.gz HEADCROP:10 SLIDINGWINDOW:4:15 MINLEN:100
 done
 
 #quality check
 for i in $sample
 do
-${FASTQC} ${i}_trim4_R1.fastq.gz ${i}_trim4_R2.fastq.gz
+  ${FASTQC} ${i}_trim4_R1.fastq.gz ${i}_trim4_R2.fastq.gz
 done
 
 #unzipping
 for i in $sample
 do
-gunzip ${i}_trim4p_R1.fastq.gz ${i}_trim4p_R2.fastq.gz ${i}_trim4s_R1.fastq.gz ${i}_trim4s_R2.fastq.gz
+  gunzip ${i}_trim4p_R1.fastq.gz ${i}_trim4p_R2.fastq.gz ${i}_trim4s_R1.fastq.gz ${i}_trim4s_R2.fastq.gz
 done
 
 #step 2: merging
@@ -110,13 +110,13 @@ done
 #n: minimum contig size (same as min length before)
 for i in $sample
 do
-${PEAR} -j 10 -v 10 -n 100 -f ${i}_trim4p_R1.fastq -r ${i}_trim4p_R2.fastq -o ${i} > ${i}_merged.log
+  ${PEAR} -j 10 -v 10 -n 100 -f ${i}_trim4p_R1.fastq -r ${i}_trim4p_R2.fastq -o ${i} > ${i}_merged.log
 done
 
 #interleave reads that could not be merged
 for i in $sample
 do
-${REFORMAT} in=${i}.unassembled.forward.fastq in2=${i}.unassembled.reverse.fastq out=${i}.unassembled_IL.fastq
+  ${REFORMAT} in=${i}.unassembled.forward.fastq in2=${i}.unassembled.reverse.fastq out=${i}.unassembled_IL.fastq
 done
 
 #combine all good sequences into 1 multifasta file
@@ -124,24 +124,24 @@ done
 #this step is optional and can be left out if only merged sequences should be analyzed (in that case the merged file has to be renamed to ${i}_all.fastq
 for i in $sample
 do
-cp ${i}.assembled.fastq ${i}_all.fastq
-cat ${i}.unassembled_IL.fastq >> ${i}_all.fastq
-cat ${i}_trim4s_R1.fastq >> ${i}_all.fastq
-cat ${i}_trim4s_R2.fastq >> ${i}_all.fastq
+  cp ${i}.assembled.fastq ${i}_all.fastq
+  cat ${i}.unassembled_IL.fastq >> ${i}_all.fastq
+  cat ${i}_trim4s_R1.fastq >> ${i}_all.fastq
+  cat ${i}_trim4s_R2.fastq >> ${i}_all.fastq
 done
 
 #extract fasta information
 #fastawrap=1000 prevents introduction of new lines in sequence
 for i in $sample
 do
-${REFORMAT} in=${i}_all.fastq out=${i}_all.fasta fastawrap=1000
+  ${REFORMAT} in=${i}_all.fastq out=${i}_all.fasta fastawrap=1000
 done
 
 #replace space in fasta headers with '-'
 #prevents loss of information when everything after space in fasta header is removed in downstream analysis 
 for i in $sample
 do
-sed 's/ /-/' ${i}_all.fasta > ${i}_newHeader.fasta
+  sed 's/ /-/' ${i}_all.fasta > ${i}_newHeader.fasta
 done
 
 #step 3: RNA filtering
@@ -149,7 +149,7 @@ cd ${SORTMERNA}
 
 for i in $sample
 do
-./sortmerna --ref ./rRNA_databases/silva-bac-16s-id90.fasta,./index/silva-bac-16s-db:./rRNA_databases/silva-bac-23s-id98.fasta,./index/silva-bac-23s-db:./rRNA_databases/silva-arc-16s-id95.fasta,./index/silva-arc-16s-db:./rRNA_databases/silva-arc-23s-id98.fasta,./index/silva-arc-23s-db:./rRNA_databases/silva-euk-18s-id95.fasta,./index/silva-euk-18s-db:./rRNA_databases/silva-euk-28s-id98.fasta,./index/silva-euk-28s:./rRNA_databases/rfam-5s-database-id98.fasta,./index/rfam-5s-db:./rRNA_databases/rfam-5.8s-database-id98.fasta,./index/rfam-5.8s-db --reads ${FILELOCATION}/${i}_newHeader.fasta --aligned ${FILELOCATION}/${i}_rRNA --other ${FILELOCATION}/${i}_non_rRNA --sam --fastx --blast 3 --best 1 --log -v -a 15
+  ./sortmerna --ref ./rRNA_databases/silva-bac-16s-id90.fasta,./index/silva-bac-16s-db:./rRNA_databases/silva-bac-23s-id98.fasta,./index/silva-bac-23s-db:./rRNA_databases/silva-arc-16s-id95.fasta,./index/silva-arc-16s-db:./rRNA_databases/silva-arc-23s-id98.fasta,./index/silva-arc-23s-db:./rRNA_databases/silva-euk-18s-id95.fasta,./index/silva-euk-18s-db:./rRNA_databases/silva-euk-28s-id98.fasta,./index/silva-euk-28s:./rRNA_databases/rfam-5s-database-id98.fasta,./index/rfam-5s-db:./rRNA_databases/rfam-5.8s-database-id98.fasta,./index/rfam-5.8s-db --reads ${FILELOCATION}/${i}_newHeader.fasta --aligned ${FILELOCATION}/${i}_rRNA --other ${FILELOCATION}/${i}_non_rRNA --sam --fastx --blast 3 --best 1 --log -v -a 15
 done
 
 cd ${FILELOCATION}
@@ -160,29 +160,29 @@ rm nSEQ_rRNA.txt
 
 for i in $sample
 do
-echo ${i} > tmp
-grep -c '^>' ${i}_non_rRNA.fasta | paste tmp - >> nSEQ_non_rRNA.txt
-grep -c '^>' ${i}_rRNA.fasta | paste tmp - >> nSEQ_rRNA.txt
-rm tmp
+  echo ${i} > tmp
+  grep -c '^>' ${i}_non_rRNA.fasta | paste tmp - >> nSEQ_non_rRNA.txt
+  grep -c '^>' ${i}_rRNA.fasta | paste tmp - >> nSEQ_rRNA.txt
+  rm tmp
 done
 
 
 #step 4: taxonomic classification
 for i in $sample
 do
-mkdir sina${i}
-cd sina${i}
-asplit '^>' 500 < ../${i}_rRNA.fasta
-qsub -t 1-$(ls -1 out.* | wc -l) -v SINA=${SINA},SINA_PT=${SINA_PT} ../${SINA_qsub}
-cd ..
+  mkdir sina${i}
+  cd sina${i}
+  asplit '^>' 500 < ../${i}_rRNA.fasta
+  qsub -t 1-$(ls -1 out.* | wc -l) -v SINA=${SINA},SINA_PT=${SINA_PT} ../${SINA_qsub}
+  cd ..
 done
 
 #extracting taxonomic paths
 for i in $sample
 do
-cd sina${i}
-grep -h '^lca_tax_slv' $(ls -1v ${SINA_qsub}.o*) | sed 's/^lca_tax_slv: //' > ../${i}.tax_slv
-cd ..
+  cd sina${i}
+  grep -h '^lca_tax_slv' $(ls -1v ${SINA_qsub}.o*) | sed 's/^lca_tax_slv: //' > ../${i}.tax_slv
+  cd ..
 done
 
 
@@ -193,7 +193,7 @@ cd ${FRAGGENESCAN}
 
 for i in $sample
 do
-./run_FragGeneScan.pl -genome=${FILELOCATION}/${i}_non_rRNA.fasta -out=${FILELOCATION}/${i}_fgs_prediction -complete=0 -train=illumina_10 -thread=20
+  ./run_FragGeneScan.pl -genome=${FILELOCATION}/${i}_non_rRNA.fasta -out=${FILELOCATION}/${i}_fgs_prediction -complete=0 -train=illumina_10 -thread=20
 done
 
 cd ${FILELOCATION}
@@ -203,9 +203,9 @@ module load uproc/1.1
 
 for i in $sample
 do
-uproc-prot -p -c -t 8 -o ${i}_pfam_prot.out ${UPROC_DB} ${UPROC_MODEL} ${i}_fgs_prediction.faa
-grep '^P' /${i}_pfam_prot.out > ${i}_pfam_counts.txt
-grep -v '^P' ${i}_pfam_prot.out > ${i}_pfam_pred.txt
+  uproc-prot -p -c -t 8 -o ${i}_pfam_prot.out ${UPROC_DB} ${UPROC_MODEL} ${i}_fgs_prediction.faa
+  grep '^P' /${i}_pfam_prot.out > ${i}_pfam_counts.txt
+  grep -v '^P' ${i}_pfam_prot.out > ${i}_pfam_pred.txt
 done
 
 
@@ -225,46 +225,46 @@ sample="RNA01"
 #phiX removal
 for i in $sample
 do
-${BBDUK} in=${i}.fastq.gz out=${i}_trim1.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=28 stats=${i}_stats1.txt threads=10
+  ${BBDUK} in=${i}.fastq.gz out=${i}_trim1.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=28 stats=${i}_stats1.txt threads=10
 done
 
 #adapter removal
 for i in $sample
 do
 #to remove the library adaptor (left): removes adapters on 3' and of sequence and trailing bases
-${BBDUK} in=${i}_trim1.fastq.gz out=${i}_trim2.fastq.gz ref=${ADAPTER} k=27 ktrim=l mink=12 stats=${i}_stats2.txt threads=10
+  ${BBDUK} in=${i}_trim1.fastq.gz out=${i}_trim2.fastq.gz ref=${ADAPTER} k=27 ktrim=l mink=12 stats=${i}_stats2.txt threads=10
 
 #to remove the library adaptor (right): removes adapters on 5' and of sequence and leading bases
-${BBDUK} in=${i}_trim2.fastq.gz out=${i}_trim3.fastq.gz ref=${ADAPTER} k=27 ktrim=r mink=12 stats=${i}_stats3.txt threads=10
+  ${BBDUK} in=${i}_trim2.fastq.gz out=${i}_trim3.fastq.gz ref=${ADAPTER} k=27 ktrim=r mink=12 stats=${i}_stats3.txt threads=10
 done
 
 #quality check
 for i in $sample
 do
-${FASTQC} ${i}_trim3.fastq.gz
+  ${FASTQC} ${i}_trim3.fastq.gz
 done
 
 #removal of leading and low quality bases
 for i in $sample
 do
-java -jar ${TRIMMOMATIC} SE -threads 10 -trimlog ${i}_trimlog.txt ${i}_trim3.fastq.gz ${i}_trim4.fastq.gz HEADCROP:10 SLIDINGWINDOW:4:15 MINLEN:100
+  java -jar ${TRIMMOMATIC} SE -threads 10 -trimlog ${i}_trimlog.txt ${i}_trim3.fastq.gz ${i}_trim4.fastq.gz HEADCROP:10 SLIDINGWINDOW:4:15 MINLEN:100
 done
 
 #quality check
 for i in $sample
 do
-${FASTQC} ${i}_trim4.fastq.gz
+  ${FASTQC} ${i}_trim4.fastq.gz
 done
 
 #extract fasta information
 for i in $sample
 do
-gunzip ${i}_trim4.fastq.gz
+  gunzip ${i}_trim4.fastq.gz
 done
 
 for i in $sample
 do
-${REFORMAT} in=${i}_trim4.fastq out=${i}_trim4.fasta fastawrap=1000
+  ${REFORMAT} in=${i}_trim4.fastq out=${i}_trim4.fasta fastawrap=1000
 done
 
 
@@ -276,113 +276,35 @@ done
 #running sortmerna on cluster because of large number of rRNA sequences in metaT
 for i in $sample
 do
-mkdir sort${i}
-cd sort${i}
-asplit '^>' 100000 < ../${i}_trim4.fasta
-cd ${SORTMERNA}
-qsub -t 1-$(ls -1 ${FILELOCATION}/sort${i}/out.* | wc -l) -v FILELOCATION=${FILELOCATION},i=${i} ${FILELOCATION}/${SORTMERNA_qsub}
-cd ${FILELOCATION}
+  mkdir sort${i}
+  cd sort${i}
+  asplit '^>' 100000 < ../${i}_trim4.fasta
+  cd ${SORTMERNA}
+  qsub -t 1-$(ls -1 ${FILELOCATION}/sort${i}/out.* | wc -l) -v FILELOCATION=${FILELOCATION},i=${i} ${FILELOCATION}/${SORTMERNA_qsub}
+  cd ${FILELOCATION}
 done
 
 #cleaning up sort directory and concatonating output
 for i in $sample
-cd sort${i}
 do
-mkdir sort${i}sam;mkdir sort${i}blast;mkdir sort${i}log;mkdir sort${i}non;mkdir sort${i}rRNA;mkdir sort${i}input
-mv *.sam ./sort${i}sam/
-mv *.blast ./sort${i}blast/
-mv *.log ./sort${i}log/
-mv non* ./sort${i}non/
-mv rRNA* ./sort${i}rRNA/
-mv out.* ./sort${i}input/
-cat ./sort${i}non/non_rRNA* > ../${i}_non_rRNA.fasta
-cat ./sort${i}rRNA/rRNA* > ../${i}_rRNA.fasta
+cd sort${i}
+  mkdir sort${i}sam;mkdir sort${i}blast;mkdir sort${i}log;mkdir sort${i}non;mkdir sort${i}rRNA;mkdir sort${i}input
+  mv *.sam ./sort${i}sam/
+  mv *.blast ./sort${i}blast/
+  mv *.log ./sort${i}log/
+  mv non* ./sort${i}non/
+  mv rRNA* ./sort${i}rRNA/
+  mv out.* ./sort${i}input/
+  cat ./sort${i}non/non_rRNA* > ../${i}_non_rRNA.fasta
+  cat ./sort${i}rRNA/rRNA* > ../${i}_rRNA.fasta
 done
 
 #subsampling rRNA reads
 for i in $sample
 do
-${REFORMAT} in=${i}_rRNA.fasta out=${i}_rRNA_sub.fasta samplerate=0.1 fastawrap=1000
+  mv ${i}_rRNA.fasta ${i}_rRNA_all.fasta
+  ${REFORMAT} in=${i}_rRNA_all.fasta out=${i}_rRNA.fasta samplerate=0.1 fastawrap=1000
 done
-
-
-######################
-#marker gene analysis#
-######################
-
-#run for RNA and DNA samples at the same time
-sample="DNA01 RNA01"
-
-mkdir markerGenes
-cd markerGenes
-
-#writing fasta file for blastp input
-#each output fasta file contains the sequences for a specific pfam for all samples
-#sample name preceding sequence accnos in fasta header: >sample_accnos
-while read line
-do
- mkdir ${line}
-
- for i in $sample
- do
-  grep ${line} ../${i}_pfam_pred.txt | cut -d',' -f2 > ./${line}/${i}_${line}.accnos
-  if [ $(uniq -d ./${line}/${i}_${line}.accnos | wc -l) -gt 0 ]
-  then
-   uniq -d ./${line}/${i}_${line}.accnos > ./${line}/${i}_${line}_multi.accnos
-  fi
-  grep -A1 -F -f ./${line}/${i}_${line}.accnos ../${i}_fgs_prediction.faa | sed -e '/^--$/d' -e "s/^>/>${i}_/" > ./${line}/${i}_${line}.fasta
- done
-
- cat ./${line}/*_${line}.fasta > ./${line}/${line}.fasta
-done < ${PFAM}
-
-#blasting
-while read line
-do
- cd ${line}
- mkdir blastp_${line}
- cd blastp_${line}
- asplit '^>' 100 < ../${line}.fasta
- qsub -t 1-$(ls -1 out.* | wc -l) -v BLASTP=${BLASTP},BLASTP_DB=${BLASTP_DB} ${FILELOCATION}/${BLASTP_qsub}
- cd ../../
-done < ${PFAM}
-
-#parsing blastp output (best hit by bitscore then evalue)
-while read line
-do
- cat ./${line}/blastp_${line}/blastp_[0-9]* > ./${line}/${line}_blastp.txt
- sort -k1,1 -k12,12nr -k11,11n ./${line}/${line}_blastp.txt | sort -u -k1,1 --merge > ./${line}/${line}_blastp_best.txt
-done < ${PFAM}
-
-#copy best hit files to new directory
-mkdir markerGenesBestHits
-while read line
-do
- cp ./${line}/${line}_blastp_best.txt ../markerGenesBestHits/${line}_blastp_best.txt
-done < ${PFAM}
-cd ../markerGenesBestHits/
-
-#extract gi accession numbers from all blast results
-while read line
-do
- cut -f2 ${line}_blastp_best.txt | cut -d'|' -f2 >> getPath.uid.tmp
-done < ${PFAM}
-sort getPath.uid.tmp | uniq > getPath.uid
-
-#get taxonomic path for all unique gi accession numbers
-#input and outpu refer to file base of input gi accession numbers and name of output table with accession and taxonomic path
-qsub -v input="getPath",output="blastpPath" ${FILELOCATION}/${EFETCH_qsub}
-
-#adding taxonomic path to best hit table
-while read line
-do
-cut -f2 ${line}_blastp_best.txt | cut -d'|' -f2 > uid.txt
-echo ${line} > ipr.txt
-${RSCRIPT} ${FILELOCATION}/${GETPATHR}
-paste ${line}_blastp_best.txt uid_new.txt > ${line}_blastp_path.txt
-done < ${PFAM}
-
-#further processing in excel or R
 
 
 ################
@@ -417,17 +339,17 @@ rm out.0
 rm ../fullGO.obsolete
 for i in $(ls -1v out.*)
 do
- grep '^id:' ${i} | cut -d' ' -f2 > id.tmp
- grep '^is_obsolete:' ${i} | cut -d' ' -f2 > obsolete.tmp
- grep '^alt_id:' ${i} | cut -d' ' -f2 | tr '\n' ';' > alt_id.tmp 
- grep '^consider:' ${i} | cut -d' ' -f2 | tr '\n' ';' > consider.tmp
- grep '^replaced_by:' ${i} | cut -d' ' -f2 | tr '\n' ';' > replaced.tmp
- paste id.tmp obsolete.tmp consider.tmp replaced.tmp alt_id.tmp >> ../fullGO.obsolete
- rm id.tmp
- rm obsolete.tmp
- rm alt_id.tmp
- rm consider.tmp
- rm replaced.tmp
+  grep '^id:' ${i} | cut -d' ' -f2 > id.tmp
+  grep '^is_obsolete:' ${i} | cut -d' ' -f2 > obsolete.tmp
+  grep '^alt_id:' ${i} | cut -d' ' -f2 | tr '\n' ';' > alt_id.tmp 
+  grep '^consider:' ${i} | cut -d' ' -f2 | tr '\n' ';' > consider.tmp
+  grep '^replaced_by:' ${i} | cut -d' ' -f2 | tr '\n' ';' > replaced.tmp
+  paste id.tmp obsolete.tmp consider.tmp replaced.tmp alt_id.tmp >> ../fullGO.obsolete
+  rm id.tmp
+  rm obsolete.tmp
+  rm alt_id.tmp
+  rm consider.tmp
+  rm replaced.tmp
 done
 cd ..
 tail fullGO.obsolete #last file also contained edge ID --> remove
@@ -442,4 +364,84 @@ export SILVA
 
 #creating output tables
 ${RSCRIPT} ${FILELOCATION}/${POSTR}
+
+
+
+######################
+#marker gene analysis#
+######################
+
+#run for RNA and DNA samples at the same time
+sample="DNA01 RNA01"
+
+mkdir markerGenes
+cd markerGenes
+
+#writing fasta file for blastp input
+#each output fasta file contains the sequences for a specific pfam for all samples
+#sample name preceding sequence accnos in fasta header: >sample_accnos
+while read line
+do
+  mkdir ${line}
+
+  for i in $sample
+  do
+    grep ${line} ../${i}_pfam_pred.txt | cut -d',' -f2 > ./${line}/${i}_${line}.accnos
+    if [ $(uniq -d ./${line}/${i}_${line}.accnos | wc -l) -gt 0 ]
+    then
+      uniq -d ./${line}/${i}_${line}.accnos > ./${line}/${i}_${line}_multi.accnos
+    fi
+    grep -A1 -F -f ./${line}/${i}_${line}.accnos ../${i}_fgs_prediction.faa | sed -e '/^--$/d' -e "s/^>/>${i}_/" > ./${line}/${i}_${line}.fasta
+  done
+
+  cat ./${line}/*_${line}.fasta > ./${line}/${line}.fasta
+done < ${PFAM}
+
+#blasting
+while read line
+do
+  cd ${line}
+  mkdir blastp_${line}
+  cd blastp_${line}
+  asplit '^>' 100 < ../${line}.fasta
+  qsub -t 1-$(ls -1 out.* | wc -l) -v BLASTP=${BLASTP},BLASTP_DB=${BLASTP_DB} ${FILELOCATION}/${BLASTP_qsub}
+  cd ../../
+done < ${PFAM}
+
+#parsing blastp output (best hit by bitscore then evalue)
+while read line
+do
+  cat ./${line}/blastp_${line}/blastp_[0-9]* > ./${line}/${line}_blastp.txt
+  sort -k1,1 -k12,12nr -k11,11n ./${line}/${line}_blastp.txt | sort -u -k1,1 --merge > ./${line}/${line}_blastp_best.txt
+done < ${PFAM}
+
+#copy best hit files to new directory
+mkdir markerGenesBestHits
+while read line
+do
+  cp ./${line}/${line}_blastp_best.txt ../markerGenesBestHits/${line}_blastp_best.txt
+done < ${PFAM}
+cd ../markerGenesBestHits/
+
+#extract gi accession numbers from all blast results
+while read line
+do
+  cut -f2 ${line}_blastp_best.txt | cut -d'|' -f2 >> getPath.uid.tmp
+done < ${PFAM}
+sort getPath.uid.tmp | uniq > getPath.uid
+
+#get taxonomic path for all unique gi accession numbers
+#input and outpu refer to file base of input gi accession numbers and name of output table with accession and taxonomic path
+qsub -v input="getPath",output="blastpPath" ${FILELOCATION}/${EFETCH_qsub}
+
+#adding taxonomic path to best hit table
+while read line
+do
+  cut -f2 ${line}_blastp_best.txt | cut -d'|' -f2 > uid.txt
+  echo ${line} > ipr.txt
+  ${RSCRIPT} ${FILELOCATION}/${GETPATHR}
+  paste ${line}_blastp_best.txt uid_new.txt > ${line}_blastp_path.txt
+done < ${PFAM}
+
+#further processing in excel or R
 
