@@ -92,12 +92,6 @@ do
   java -jar ${TRIMMOMATIC} PE -threads 10 -trimlog ${i}_trimlog.txt ${i}_trim3_R1.fastq.gz ${i}_trim3_R2.fastq.gz ${i}_trim4p_R1.fastq.gz ${i}_trim4s_R1.fastq.gz ${i}_trim4p_R2.fastq.gz ${i}_trim4s_R2.fastq.gz HEADCROP:10 SLIDINGWINDOW:4:15 MINLEN:100
 done
 
-#quality check
-for i in $sample
-do
-  ${FASTQC} ${i}_trim4_R1.fastq.gz ${i}_trim4_R2.fastq.gz
-done
-
 #unzipping
 for i in $sample
 do
@@ -128,6 +122,13 @@ do
   cat ${i}.unassembled_IL.fastq >> ${i}_all.fastq
   cat ${i}_trim4s_R1.fastq >> ${i}_all.fastq
   cat ${i}_trim4s_R2.fastq >> ${i}_all.fastq
+done
+
+#quality check
+#this step can also be executed earlier, if intermediate quality checks are of interest
+for i in $sample
+do
+  ${FASTQC} ${i}_all.fastq
 done
 
 #extract fasta information
