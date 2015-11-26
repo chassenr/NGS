@@ -205,7 +205,7 @@ module load uproc/1.1
 for i in $sample
 do
   uproc-prot -p -c -t 8 -o ${i}_pfam_prot.out ${UPROC_DB} ${UPROC_MODEL} ${i}_fgs_prediction.faa
-  grep '^P' /${i}_pfam_prot.out > ${i}_pfam_counts.txt
+  grep '^P' ${i}_pfam_prot.out > ${i}_pfam_counts.txt
   grep -v '^P' ${i}_pfam_prot.out > ${i}_pfam_pred.txt
 done
 
@@ -298,6 +298,7 @@ cd sort${i}
   mv out.* ./sort${i}input/
   cat ./sort${i}non/non_rRNA* > ../${i}_non_rRNA.fasta
   cat ./sort${i}rRNA/rRNA* > ../${i}_rRNA.fasta
+  cd ..
 done
 
 #subsampling rRNA reads
