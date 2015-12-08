@@ -380,7 +380,7 @@ qsub -t 1-${JOBCOUNT} -v SINA=${SINA},SINA_PT=${SINA_PT} ../${SINA_qsub}
 grep -h '^sequence_identifier' $(ls -1v ${SINA_qsub}.o*) | sed 's/^sequence_identifier: //' > amplicons_seeds.accnos
 
 #check if the order is the same as in amplicons_seeds_uc.fasta
-grep '^>' amplicons_seeds_uc.fasta | sed 's/^>//' | diff - amplicons_seeds.accnos
+grep '^>' ../Swarm/amplicons_seeds_uc.fasta | sed 's/^>//' | diff - amplicons_seeds.accnos
 
 # Get all corresponding taxonomic paths (note the same order as the accnos)
 grep -h '^lca_tax_slv' $(ls -1v ${SINA_qsub}.o*) | sed 's/^lca_tax_slv: //' > amplicons_seeds.tax_slv
