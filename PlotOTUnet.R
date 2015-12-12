@@ -134,7 +134,7 @@ PlotOTUnet <- function (data, tax, abund,
   Data.vertex <- Data.vertex[match(V(net.graph)$name[-c((nrow(Data) + 1):length(V(net.graph)$name))],
                                    as.character(Data.vertex$otu)), ]
   
-  V(net.graph)$size <- c(rescale(Data.vertex$tot.rel.abund, to = c(1, 25)), nchar(colnames(Data)) * 2.3)
+  V(net.graph)$size <- c(rescale(Data.vertex$tot.rel.abund, to = c(1, 25)), nchar(sample.names) * 2.4)
   V(net.graph)$size2 <- c(rescale(Data.vertex$tot.rel.abund, to = c(1, 25)), rep(4.5, ncol(Data)))
   V(net.graph)$color <- c(Data.vertex$color.alpha, rep("white", ncol(Data)))
   V(net.graph)$label <- c(rep(NA,nrow(Data)), sample.names)
