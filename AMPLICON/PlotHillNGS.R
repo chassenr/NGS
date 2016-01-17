@@ -182,7 +182,16 @@ PlotHillNGS <- function(input, per.sample, cond, color,
          type = "n", 
          xlim = c(0, 2.5), 
          ylim = if (is.null(ylim)) { 
-           c(0,max(input2) + 0.1 * max(input2)) 
+           if (raw == F) {
+             c(0,max(input2) + 0.1 * max(input2))
+           } else {
+             if (CI == T & method == "mean") {
+             c(0,(max(input2) + max(CI.Hill2)) + 0.1 * max(input2))
+           }
+           if (CI == T & method == "median") {
+             c(0,max(IQU.Hill2) + 0.1 * max(input2))
+             }
+           }
          } else {
            ylim
          }, 
