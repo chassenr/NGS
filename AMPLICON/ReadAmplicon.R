@@ -152,8 +152,8 @@ ReadAmplicon <- function(otu, tax, silva, domain,
           }
           Taxb[is.na(Taxb[, i]),] <- test
         }
-        Taxb[is.na(Taxb[, (k + 1)]), (k + 1)] <- paste(Taxb[is.na(Taxb[, (k + 1)]), k], "_unclassified", sep = "")
       }
+      Taxb[is.na(Taxb[, (k + 1)]), (k + 1)] <- paste(Taxb[is.na(Taxb[, (k + 1)]), k], "_unclassified", sep = "")
     }
     
     output <- list(OTU = Data0b[, 3:(ncol(Data0b) - 1)], TAX = Taxb)
