@@ -88,11 +88,14 @@ PlotHillNGS <- function(input, per.sample, cond, color,
       input2 <- input
     }
     
+    maxY <- max(input2) + 0.1 * max(input2)
+    
+    
     plot(2, max(input2) + 0.1 * max(input2), 
          type = "n", 
          xlim = c(0, 2.5), 
          ylim = if (is.null(ylim)) { 
-           c(0,max(input2) + 0.1 * max(input2)) 
+           c(0, maxY) 
            } else {
              ylim
            }, 
@@ -178,20 +181,36 @@ PlotHillNGS <- function(input, per.sample, cond, color,
       }
     }
     
+
+    if (raw == F) {
+      if (CI == F) {
+        maxY <- max(input2) + 0.1 * max(input2)
+      }
+      if (CI == T) {
+        if (method == "mean") {
+          maxY <- max(input2) + max(CI.Hill) + 0.1 * max(input2)
+        }
+        if (method == "median") {
+          maxY <- max(IQU.Hill) + 0.1 * max(input2)
+        }
+      }
+    } else {
+      if (CI == T) {
+        if (method == "mean") {
+          maxY <- max(input2) + max(CI.Hill2) + 0.1 * max(input2)
+        }
+        if (method == "median") {
+          maxY <- max(IQU.Hill2) + 0.1 * max(input2)
+        }
+      }
+    }
+    
+    
     plot(2, max(input2) + 0.1 * max(input2), 
          type = "n", 
          xlim = c(0, 2.5), 
          ylim = if (is.null(ylim)) { 
-           if (raw == F) {
-             c(0,max(input2) + 0.1 * max(input2))
-           } else {
-             if (CI == T & method == "mean") {
-             c(0,(max(input2) + max(CI.Hill2)) + 0.1 * max(input2))
-           }
-           if (CI == T & method == "median") {
-             c(0,max(IQU.Hill2) + 0.1 * max(input2))
-             }
-           }
+           c(0, maxY) 
          } else {
            ylim
          }, 
