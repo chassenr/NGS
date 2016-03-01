@@ -29,6 +29,12 @@ EFETCH_qsub="efetch_submission_new.sh"
 GETPATHR="getPath.R"
 POSTR="postR.R"
 PFAMACC2DESC="pfam_acc2desc.final"
+#create pfam accession to description file from Pfam.hmm file
+#grep '^ACC' Pfam-version-A.hmm > pfam_accnos_from_hmm.txt
+#grep '^DESC' Pfam-version-A.hmm > pfam_description_from_hmm.txt
+#cut -c 7- pfam_accnos_from_hmm.txt | cut -d'.' -f1 > pfam_accnos_from_hmm.final
+#cut -c 7- pfam_description_from_hmm.txt > pfam_description_from_hmm.final
+#paste pfam_accnos_from_hmm.final pfam_description_from_hmm.final > pfam_acc2desc.final
 PFAM2GO="pfam2go_new.txt" #download at http://geneontology.org/external2go/pfam2go
 GOOBO="fullGO.obo" #download at ftp://ftp.geneontology.org/pub/go/ontology/gene_ontology_edit.obo
 SILVA="SILVA119taxmap_curated.txt" #download at http://www.arb-silva.de/fileadmin/silva_databases/current/Exports/taxonomy/tax_slv_ssu_123.txt (further curation necessary)
@@ -57,7 +63,7 @@ sample="DNA01"
 #phiX removal
 for i in $sample
 do
-  ${BBDUK} in=${i}_R1.fastq.gz in2=${i}_R2.fastq.gz out=${i}_trim1_R1.fastq.gz out2=${i}_trim1_R2.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=28 stats=${i}_stats1.txt threads=10
+  ${BBDUK} in=${i}_R1.fastq.gz in2=${i}_R2.fastq.gz out=${i}_trim1_R1.fastq.gz out2=${i}_trim1_R2.fastq.gz ref=/bioinf/software/bbmap/bbmap-34.00/resources/phix174_ill.ref.fa.gz k=31 stats=${i}_stats1.txt threads=10
 done
 
 #adapter removal
@@ -324,7 +330,7 @@ done
 
 #parsing pfam2go
 sed '1,6d' ${PFAM2GO} | cut -d':' -f2 | cut -d' ' -f1 > pfam2go.pfam
-sed '1,6d' ${PFAM2GO} | cut -d'>' -f2 | cut -d';' -f2 | sed 's/ //' > pfam2go.goacc
+sed '1,6d' ${PFAM2GO} | cut -d';' -f2 | sed 's/ //' > pfam2go.goacc
 paste pfam2go.pfam pfam2go.goacc > pfam2go.final
 
 #parsing GO to create a table with information on obsolete and replaced goterms as well as alternative ids and other goterms to consider
