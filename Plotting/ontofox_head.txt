@@ -1,0 +1,7 @@
+[URI of the OWL(RDF/XML) output file]
+http://my.go.export.org/myGo.owl
+
+[Source ontology]
+GO
+
+[Low level source term URIs]

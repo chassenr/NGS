@@ -1,0 +1,17 @@
+
+[Top level source term URIs and target direct superclass URIs]
+http://purl.obolibrary.org/obo/GO_0008150 #biological_process
+subClassOf
+http://purl.obolibrary.org/obo/GO_0003674 #molecular_function
+subClassOf
+http://purl.obolibrary.org/obo/GO_0005575 #cellular_component
+subClassOf
+
+[Source term retrieval setting]
+includeAllIntermediates
+
+[Source annotation URIs]
+includeAllAxioms
+
+[Source annotation URIs to be excluded]
+

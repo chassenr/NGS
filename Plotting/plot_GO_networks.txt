@@ -1,0 +1,62 @@
+# plotting of GO network of selected GO terms for each GO namespace
+# including all nodes between GO terms of interest
+# Acknowledgements: Pier Buttigieg
+
+### step 0: setting up environment
+# add owltools to your PATH, e.g.:
+
+module load owltools
+
+
+### step 1: create list of GO terms as input
+# use e.g. R to retrieve the 20 most abundant GO terms in your dataset
+# the input for the following steps is a simple text file with one GO term per line
+INPUT="ontofox.terms"
+
+
+### step 2: retrieve all intermediate nodes using the online tool ontofox
+# format list of GO terms for ontofox
+# create purl for GO terms
+
+sed -e 's/:/_/' -e 's/^/http:\/\/purl\.obolibrary\.org\/obo\//' ${TERMS_IN} > ${TERMS_IN}".purl"
+
+# create ontofox input file by adding header (output URI, source ontology) and tail (top level terms, search strategy)
+# head and tail of ontofox file provided in NGS/plotting
+
+cat ontofox_head.txt ${TERMS_IN}".purl" ontofox_tail.txt > ${TERMS_IN}".ontofox_input.txt"
+
+# submit to ontofox (http://ontofox.hegroup.org/)
+# set variable for file base of ontofox output file (.owl)
+
+OUTPUT="ontofox_out"
+
+
+### step 3: reformat ontofox output to xgmml (Cytoscape-compatible format)
+# convert owl to xgmml
+
+owltools ${OUTPUT}".owl" --write-xgmml ${OUTPUT}".xgmml"
+
+# Cytoscape will not understand some of the attributes in the xgmml file
+# replace name of 'label' attribute with 'altlabel' (Cytoscape will read 'node label')
+# replace 'node id' and 'edge id' with 'node label' and 'edge label' (Cytoscape doesn't understand 'id')
+# replace '_' in GO term name with ':'
+# optional: rename network (2nd line of file: graph id="GO_net" altlabel="GO_net_test")
+
+sed -e 's/label/altlabel/' -e 's/node id/node label/' -e 's/edge id/edge label/' -e 's/GO_/GO:/g' ${OUTPUT}".xgmml" >  ${OUTPUT}".reformat.xgmml"
+
+
+### step 4: extract GO terms from network file and get abundance information
+# search for purls of GO terms
+# extract GO term from purl
+# replace '_' in GO term name with ':'
+
+grep -F '<owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_' ${OUTPUT}".owl" | sed -e 's/    <owl:Class rdf:about="http:\/\/purl\.obolibrary\.org\/obo\///' -e 's/">//' -e 's/_/:/' > ${OUTPUT}".terms"
+
+
+### step 5: plot network (${OUTPUT}".reformat.xgmml") in Cytoscape or R, etc.
+# create node attributes file in e.g. R, containing information on:
+#   top level GO terms (molecular function, biological process, cellular component)
+#   abundance of all GO terms in network
+# this information is part of the output of the PostR.R script of the metaG-T workflow
+# Change network layout e.g. by selecting node color by top level GO terms and node size and transparency by abundance of GO terms
+
