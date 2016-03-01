@@ -395,10 +395,6 @@ do
   for i in $sample
   do
     grep ${line} ../${i}_pfam_pred.txt | cut -d',' -f2 > ./${line}/${i}_${line}.accnos
-    if [ $(uniq -d ./${line}/${i}_${line}.accnos | wc -l) -gt 0 ]
-    then
-      uniq -d ./${line}/${i}_${line}.accnos > ./${line}/${i}_${line}_multi.accnos
-    fi
     grep -A1 -F -f ./${line}/${i}_${line}.accnos ../${i}_fgs_prediction.faa | sed -e '/^--$/d' -e "s/^>/>${i}_/" > ./${line}/${i}_${line}.fasta
   done
 
