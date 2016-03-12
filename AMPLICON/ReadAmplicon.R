@@ -1,9 +1,9 @@
 #documentation start
 #=============================================================================
 # File data
-# creator: Christiane Hassenrück
+# creator: Christiane HassenrÃ¼ck
 # acknowledgements:
-# primary authority: Christiane Hassenrück
+# primary authority: Christiane HassenrÃ¼ck
 # other authorities: 
 #=============================================================================
 # File contents
@@ -157,7 +157,8 @@ ReadAmplicon <- function(otu, tax, silva, domain,
       Taxb[is.na(Taxb[, (k + 1)]), (k + 1)] <- paste(Taxb[is.na(Taxb[, (k + 1)]), k], "_unclassified", sep = "")
     }
     
-    align_qual <- tax0b[rownames(Data0b), "path"]
+    align_qual <- Tax0b[rownames(Data0b), "align"]
+    names(align_qual) <- rownames(Data0b)
     
     output <- list(OTU = Data0b[, 3:(ncol(Data0b) - 1)], TAX = Taxb, ALIGN = align_qual)
     if (write.files == TRUE) {
