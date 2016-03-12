@@ -24,7 +24,8 @@
 # write.files - Should output tables be written to file? (default TRUE)
 #
 # output:
-# Sample by OTU and OTU by taxonomy table (may need further manual curation)
+# Sample by OTU and OTU by taxonomy table (may need further manual curation), 
+# alignment quality for representative sequence per OTU
 #
 # dependencies:
 # function optimized for output of AmpliconNGSworkflow.txt
@@ -156,10 +157,13 @@ ReadAmplicon <- function(otu, tax, silva, domain,
       Taxb[is.na(Taxb[, (k + 1)]), (k + 1)] <- paste(Taxb[is.na(Taxb[, (k + 1)]), k], "_unclassified", sep = "")
     }
     
-    output <- list(OTU = Data0b[, 3:(ncol(Data0b) - 1)], TAX = Taxb)
+    align_qual <- tax0b[rownames(Data0b), "path"]
+    
+    output <- list(OTU = Data0b[, 3:(ncol(Data0b) - 1)], TAX = Taxb, ALIGN = align_qual)
     if (write.files == TRUE) {
       write.table(output$OTU, "OTU_table.txt", sep = "\t", quote = F)
       write.table(output$TAX, "Taxonomy_table.txt", sep = "\t", quote = F)
+      write.table(output$ALIGN, "Align_qual.txt", sep = "\t", quote = F)
     }
     return(output)
   } 
