@@ -1,9 +1,9 @@
 #documentation start
 #=============================================================================
 # File data
-# creator: Christiane Hassenrück
+# creator: Christiane HassenrÃ¼ck
 # acknowledgements: Alban Ramette
-# primary authority: Christiane Hassenrück
+# primary authority: Christiane HassenrÃ¼ck
 # other authorities: 
 #=============================================================================
 # File contents
@@ -24,13 +24,15 @@
 #=============================================================================
 #documentation end
 
-SubsampleNGS <- function(Data, n, sub) {
+SubsampleNGS <- function(Data, n, sub, subTable = F) {
   
   if(!"vegan" %in% installed.packages()) {
     install.packages("vegan")
   }
   require(vegan)
   
+  #removing samples with less than sub sequences
+  Data <- Data[, colSums(Data) >= sub]
   
   output <- list(iterations = list(nOTU = matrix(NA, n, ncol(Data)),
                                    chao1 = matrix(NA, n, ncol(Data)),
@@ -63,7 +65,9 @@ SubsampleNGS <- function(Data, n, sub) {
   rownames(output$summaryHillRaw) <- c("Hill0","Hill1","Hill2")
   
   for(j in 1:n){
-    
+
+    print(j)    
+
     #subsampling 
     x_sub <- list()
     for (i in 1:ncol(Data)) {
@@ -86,6 +90,10 @@ SubsampleNGS <- function(Data, n, sub) {
     #exclude empty OTUs
     Data_new <- SampleOTU[!apply(SampleOTU, 1, sum) == 0, ]
     
+    if (subTable == T & j == 1) {
+      write.table(Data_new, "subTable.txt", quote = F, sep = "\t")
+    }
+
     #nOTU
     Data01 <- Data_new
     Data01[Data01 > 0] <- 1
