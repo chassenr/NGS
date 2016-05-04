@@ -25,7 +25,7 @@
 #
 # output:
 # Sample by OTU and OTU by taxonomy table (may need further manual curation), 
-# alignment quality for representative sequence per OTU
+# alignment quality for representative sequence per OTU and original seed sequence accession number
 #
 # dependencies:
 # function optimized for output of AmpliconNGSworkflow.txt
@@ -61,7 +61,7 @@ ReadAmplicon <- function(otu, tax, silva, domain,
   if (all.equal(as.character(accnos), as.character(Data0$amplicon)) != TRUE) {
     print("OTU_contigency_table and taxonomy do not match\n")
   } else {
-    rm(accnos)
+    Tax0$accnos <- accnos
     rownames(Tax0) <- rownames(Data0)
     
     #removing unwanted lineages
@@ -157,8 +157,7 @@ ReadAmplicon <- function(otu, tax, silva, domain,
       Taxb[is.na(Taxb[, (k + 1)]), (k + 1)] <- paste(Taxb[is.na(Taxb[, (k + 1)]), k], "_unclassified", sep = "")
     }
     
-    align_qual <- Tax0b[rownames(Data0b), "align"]
-    names(align_qual) <- rownames(Data0b)
+    align_qual <- Tax0b[rownames(Data0b), c("accnos","align")]
     
     output <- list(OTU = Data0b[, 3:(ncol(Data0b) - 1)], TAX = Taxb, ALIGN = align_qual)
     if (write.files == TRUE) {
