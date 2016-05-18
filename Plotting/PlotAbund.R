@@ -13,6 +13,7 @@
 # input: 
 # relData - sample (colums) by taxa (rows) table in relative abundances
 # abund - number of abundant taxa to plot
+# margin - adjust plot margin for long labels
 # 
 # output:
 # stacked barplot and corresponding legend in a separate window
@@ -22,7 +23,7 @@
 #=============================================================================
 #documentation end
 
-PlotAbund <- function(relData, abund,
+PlotAbund <- function(relData, abund, margin = par()$mar,
                       colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred")) {
   abund_names <- c()
   for (i in 1:ncol(relData)) {
@@ -32,7 +33,7 @@ PlotAbund <- function(relData, abund,
   abund_rel <- rbind(abund_rel0, 100 - colSums(abund_rel0))
   rownames(abund_rel)[nrow(abund_rel)] <- "other"
   windows(width = 20, height = 10)
-  par(mfrow = c(1, 2))
+  par(mfrow = c(1, 2), mar = margin, xpd = NA)
   barplot(abund_rel, 
           col = c(colorRampPalette(colorPalette)(nrow(abund_rel) - 1), "darkgrey"),
           ylim = c(0, 100), 

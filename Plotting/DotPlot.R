@@ -1,14 +1,47 @@
-# dotplot for OTU table (or similar)
+#documentation start
+#=============================================================================
+# File data
+# creator: Christiane Hassenrück
+# acknowledgements: 
+# primary authority: Christiane Hassenrück
+# other authorities: 
+#=============================================================================
+# File contents
+# Function to create a dotplot of e.g. OTU abundances
+#
+# input: 
+# Data - sample (colums) by taxa (rows) table (data.frame or matrix), or similar. Values will be rescaled to cex between 0.1 and max.size
+# taxonomy - row labels for plot (character vector), will be used to order rows, default rownames(Data)
+# condition - column labels for plot (character vector), default colnames(Data)
+# color - color matrix for dotplot (character matrix), same dimensions as Data
+# max.size - maximum cex for dots (default: 4)
+# grid - should gridlines be plotted in the background (default: TRUE)
+# 
+# output:
+# dotplot showing abundance (values) of each OTU per sample
+#
+# dependencies:
+# scales (if not available, will be installed by running the function)
+#=============================================================================
+#documentation end
 
-dotPlot <- function(Data, taxonomy, condition = colnames(Data), color = rep("black", nrow(Data)), max.size = 4, grid = T) {
+
+dotPlot <- function(Data, 
+                    taxonomy = rownames(Data), 
+                    condition = colnames(Data), 
+                    color = matrix("black", nrow(Data), ncol(Data)),
+                    max.size = 4, 
+                    grid = T) {
+  
   if (!"scales" %in% installed.packages()) {
     install.packages("scales")
   }
   require(scales)
   
-  scaleData <- rescale(as.matrix(Data), to = c(0.1, max.size))
-  scaleData2 <- scaleData[order(taxonomy, decreasing = T),]
-  taxonomy2 <- taxonomy[order(taxonomy, decreasing = T)]
+  scaleData <- rescale(as.matrix(Data), to = c(0.1, max.size)) # rescale values to cex
+  scaleData2 <- scaleData[order(taxonomy, decreasing = T),] # order rows by taxon name
+  taxonomy2 <- taxonomy[order(taxonomy, decreasing = T)] # order row labels by taxon name
+  color2 <- color[order(taxonomy, decreasing = T),]
   
   plot(0,
        0,
@@ -37,7 +70,7 @@ dotPlot <- function(Data, taxonomy, condition = colnames(Data), color = rep("bla
   for(i in 1:nrow(scaleData2)) {
     points(1:ncol(scaleData2),
            rep(i, ncol(scaleData2)),
-           bg = color[i],
+           bg = color2[i, ],
            cex = scaleData2[i, ],
            pch = 21,
            col = "white")
