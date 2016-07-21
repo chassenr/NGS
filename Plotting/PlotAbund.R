@@ -1,9 +1,9 @@
 #documentation start
 #=============================================================================
 # File data
-# creator: Christiane Hassenrück
+# creator: Christiane HassenrÃ¼ck
 # acknowledgements: 
-# primary authority: Christiane Hassenrück
+# primary authority: Christiane HassenrÃ¼ck
 # other authorities: 
 #=============================================================================
 # File contents
@@ -32,6 +32,7 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
   abund_rel0 <- relData[abund_names, ]
   abund_rel <- rbind(abund_rel0, 100 - colSums(abund_rel0))
   rownames(abund_rel)[nrow(abund_rel)] <- "other"
+  abund_rel <- as.matrix(abund_rel)
   windows(width = 20, height = 10)
   par(mfrow = c(1, 2), mar = margin, xpd = NA)
   barplot(abund_rel, 
