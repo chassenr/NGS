@@ -17,6 +17,16 @@
 #   mean difference between treatment A and treatment B
 #   lower confidence interval of mean difference
 #   upper confidence interval of mean difference
+# The following code can help you create the input for the plotting function
+# Data is a data.frame with samples in columns and the taxa of interest in rows
+# Treatment is a vector (factor with 2 levels) with the treatment for each sample
+#   mean.diff <- matrix(NA, nrow(Data), 5)
+#   rownames(mean.diff) <- rownames(Data)
+#   colnames(mean.diff) <- c("mean.uninhabited", "mean.inhabited", "mean.diff", "CI.lower", "CI.upper")
+#   mean.diff[, 1:2] <- t(apply(Data, 1, function(x) {by(x, Treatment, mean)}))
+#   mean.diff[, 3] <- mean.diff[, 2] - mean.diff[, 1]
+#   mean.diff[, 4:5] <- t(apply(Data, 1, function(x) {t.test(x ~ Treatment)$conf.int}))
+# further arguments
 # labels - labels of taxa, default: rownames(mean.diff)
 # col1 - color of bars for condition A in barplot (character)
 # col2 - color of bars for condition A in barplot (character)
