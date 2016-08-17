@@ -69,26 +69,10 @@ SubsampleNGS <- function(Data, n, sub, subTable = F) {
     print(j)    
 
     #subsampling 
-    x_sub <- list()
-    for (i in 1:ncol(Data)) {
-      sub1 <- rep(rownames(Data), Data[, i])
-      sub2 <- sample(sub1, size = sub)
-      x_sub[[i]] <- data.frame(table(sub2))
-      colnames(x_sub[[i]]) <- c("ref.otu","abund")
-    }
-    
-    SampleOTU <- matrix(NA, nrow(Data), length(x_sub))
-    colnames(SampleOTU) <- colnames(Data)
-    rownames(SampleOTU) <- rownames(Data)
-    for (i in 1:length(x_sub)) {
-      ref.otu <- as.character(x_sub[[i]][, 1])
-      SampleOTU[ref.otu, i] <- x_sub[[i]][, 2]
-    }
-    SampleOTU <- SampleOTU[order(rownames(SampleOTU)), ]
-    SampleOTU[is.na(SampleOTU)] <- 0
+    SampleOTU <-  t(rrarefy(t(Data), sub))
     
     #exclude empty OTUs
-    Data_new <- SampleOTU[!apply(SampleOTU, 1, sum) == 0, ]
+    Data_new <- SampleOTU[rowSums(SampleOTU) > 0, ]
     
     if (subTable == T & j == 1) {
       write.table(Data_new, "subTable.txt", quote = F, sep = "\t")
