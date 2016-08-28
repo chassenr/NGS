@@ -11,11 +11,14 @@
 #
 # input: 
 # Data - sample (colums) by taxa (rows) table (data.frame or matrix), or similar. Values will be rescaled to cex between 0.1 and max.size
+# legend.value - abundance values for legend
 # taxonomy - row labels for plot (character vector), will be used to order rows, default rownames(Data)
 # condition - column labels for plot (character vector), default colnames(Data)
 # color - color matrix for dotplot (character matrix), same dimensions as Data
+# min.size - minimum cex for dots (default: 0.1)
 # max.size - maximum cex for dots (default: 4)
 # grid - should gridlines be plotted in the background (default: TRUE)
+# sort - should the rows of the input be ordered accoring to taxonomy (default TRUE)
 # 
 # output:
 # dotplot showing abundance (values) of each OTU per sample
@@ -26,22 +29,33 @@
 #documentation end
 
 
-dotPlot <- function(Data, 
+dotPlot <- function(Data, legend.value,
                     taxonomy = rownames(Data), 
                     condition = colnames(Data), 
                     color = matrix("black", nrow(Data), ncol(Data)),
+                    min.size = 0.1,
                     max.size = 4, 
-                    grid = T) {
+                    grid = T,
+                    sort = T) {
   
   if (!"scales" %in% installed.packages()) {
     install.packages("scales")
   }
   require(scales)
   
-  scaleData <- rescale(as.matrix(Data), to = c(0.1, max.size)) # rescale values to cex
-  scaleData2 <- scaleData[order(taxonomy, decreasing = T),] # order rows by taxon name
-  taxonomy2 <- taxonomy[order(taxonomy, decreasing = T)] # order row labels by taxon name
-  color2 <- color[order(taxonomy, decreasing = T),]
+  scaleData <- rescale(as.matrix(Data), to = c(min.size, max.size)) # rescale values to cex
+  if (sort == T) {
+    scaleData2 <- scaleData[order(taxonomy, decreasing = T),] # order rows by taxon name
+    taxonomy2 <- taxonomy[order(taxonomy, decreasing = T)] # order row labels by taxon name
+    color2 <- color[order(taxonomy, decreasing = T),]
+  } else {
+    scaleData2 <- scaleData 
+    taxonomy2 <- taxonomy
+    color2 <- color
+  }
+  
+  LM <- lm(as.vector(scaleData) ~ as.vector(as.matrix(Data)), na.action = na.omit)
+  print(LM$coefficients[2] * legend.value + LM$coefficients[1])
   
   plot(0,
        0,
@@ -55,24 +69,24 @@ dotPlot <- function(Data,
        las = 2,
        at = 1:ncol(scaleData2),
        labels = condition,
-       cex.axis = 0.8)
-  axis(2,
+       cex.axis = 0.6)
+  axis(4,
        las = 2,
        at = 1:nrow(scaleData2),
        labels = taxonomy2,
-       cex.axis = 0.8)
+       cex.axis = 0.6)
   if(grid == T) {
     abline(h = 1:nrow(scaleData2), 
            v = 1:ncol(scaleData2), 
            col = "lightgrey", 
-           lty = 3)
+           lty = 1)
   }
   for(i in 1:nrow(scaleData2)) {
     points(1:ncol(scaleData2),
            rep(i, ncol(scaleData2)),
-           bg = color2[i, ],
+           col = color2[i, ],
            cex = scaleData2[i, ],
-           pch = 21,
-           col = "white")
+           pch = 1
+    )
   }
 }
