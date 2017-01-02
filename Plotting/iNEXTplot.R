@@ -36,7 +36,8 @@ iNEXTplot <- function(
   hill = c(0, 1, 2),
   color = rainbow(length(input$iNextEst)),
   labels = names(input$iNextEst),
-  selection = 1:length(input$iNextEst)
+  selection = 1:length(input$iNextEst),
+  window.new = T
 ) {
   
   # format input
@@ -61,7 +62,9 @@ iNEXTplot <- function(
   labels2 <- labels[selection]
   
   # open new graphics device
-  windows(width = (length(hill) + 1) * 5, height = 10)
+  if (window.new == T) {
+    windows(width = (length(hill) + 1) * 5, height = 10)
+  }
   par(mfrow = c(1, length(hill) + 1))
 
   for (i in 1:length(hill)) {
