@@ -37,7 +37,8 @@ iNEXTplot <- function(
   color = rainbow(length(input$iNextEst)),
   labels = names(input$iNextEst),
   selection = 1:length(input$iNextEst),
-  window.new = T
+  window.new = T,
+  ylim = c(0, max(as.matrix(input2$qD.UCL)))
 ) {
   
   # format input
@@ -73,7 +74,7 @@ iNEXTplot <- function(
       0, 0,
       type = "n",
       xlim = c(0, max(as.matrix(input2$m))),
-      ylim = c(0, max(as.matrix(input2$qD.UCL))),
+      ylim = ylim,
       xlab = "Number of sequences",
       ylab = paste("q = ", hill[i], sep = ""),
       axes = F
