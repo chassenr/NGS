@@ -24,7 +24,8 @@
 #documentation end
 
 PlotAbund <- function(relData, abund, margin = par()$mar,
-                      colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred")) {
+                      colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred"),
+                      plot.ratio = c(3, 1)) {
   abund_names <- c()
   for (i in 1:ncol(relData)) {
     abund_names <- unique(c(abund_names, rownames(relData)[order(relData[, i], decreasing = T)][1:abund]))
@@ -34,7 +35,8 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
   rownames(abund_rel)[nrow(abund_rel)] <- "other"
   abund_rel <- as.matrix(abund_rel)
   windows(width = 20, height = 10)
-  par(mfrow = c(1, 2), mar = margin, xpd = NA)
+  # par(mfrow = c(1, 2), mar = margin, xpd = NA)
+  layout(mat = matrix(c(1, 2), 1, 2, byrow = T), widths = plot.ratio)
   barplot(abund_rel, 
           col = c(colorRampPalette(colorPalette)(nrow(abund_rel) - 1), "darkgrey"),
           ylim = c(0, 100), 

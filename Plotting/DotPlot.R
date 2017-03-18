@@ -36,7 +36,8 @@ dotPlot <- function(Data, legend.value,
                     min.size = 0.1,
                     max.size = 4, 
                     grid = T,
-                    sort = T) {
+                    sort = T,
+                    filled = T) {
   
   if (!"scales" %in% installed.packages()) {
     install.packages("scales")
@@ -55,8 +56,8 @@ dotPlot <- function(Data, legend.value,
   }
   
   LM <- lm(as.vector(scaleData) ~ as.vector(as.matrix(Data)), na.action = na.omit)
-  print(LM$coefficients[2] * legend.value + LM$coefficients[1])
-  
+  legend.size <- (LM$coefficients[2] * legend.value + LM$coefficients[1])
+
   plot(0,
        0,
        type = "n",
@@ -82,11 +83,38 @@ dotPlot <- function(Data, legend.value,
            lty = 1)
   }
   for(i in 1:nrow(scaleData2)) {
-    points(1:ncol(scaleData2),
-           rep(i, ncol(scaleData2)),
-           col = color2[i, ],
-           cex = scaleData2[i, ],
-           pch = 1
-    )
+    if(filled == T) {
+      points(1:ncol(scaleData2),
+             rep(i, ncol(scaleData2)),
+             bg = color2[i, ],
+             col = "white",
+             cex = scaleData2[i, ],
+             pch = 21
+      )
+    } else {
+      points(1:ncol(scaleData2),
+             rep(i, ncol(scaleData2)),
+             col = color2[i, ],
+             cex = scaleData2[i, ],
+             pch = 21
+      )
+    }
   }
+  legend.x <- seq(par()$usr[2], 
+                  par()$usr[2] + ncol(scaleData2)*2/10,
+                  length.out = length(legend.size)
+                  )
+  legend.y <- rep(par()$usr[3],
+                  length(legend.size)
+                  )
+  par(xpd = NA)
+  points(legend.x, 
+         legend.y, 
+         pch = 16, 
+         cex = legend.size
+         )
+  text(legend.x, legend.y, labels = legend.value, pos = 1, cex = 0.7)
+  text(mean(legend.x), par()$usr[3] - nrow(scaleData2)/20, labels = "clr-transformed", cex = 0.8)
+  text(mean(legend.x), par()$usr[3] - nrow(scaleData2)/20, labels = "sequence counts", cex = 0.8, pos = 1)
+  par(xpd = F)
 }
