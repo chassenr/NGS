@@ -41,11 +41,15 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
   }
   # par(mfrow = c(1, 2), mar = margin, xpd = NA)
   layout(mat = matrix(c(1, 2), 1, 2, byrow = T), widths = plot.ratio)
-  barplot(abund_rel, 
+  par(mar = margin)
+  barplot(abund_rel,
           col = c(colorRampPalette(colorPalette)(nrow(abund_rel) - 1), "darkgrey"),
           ylim = c(0, 100), 
           las = 2,
-          ylab = "Relative sequence abundance [%]")
+          ylab = "Relative sequence abundance [%]",
+          names.arg = sample.names,
+          cex.names = 0.8)
+  par(mar = c(1,1,1,1))
   plot.new()
   legend("center", 
          pch = 22, 
