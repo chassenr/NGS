@@ -60,4 +60,5 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
          cex = 0.8
          ) 
   par(mar = c(5.1, 4.1, 4.1, 2.1))
+  par(mfrow = c(1,1))
 }
