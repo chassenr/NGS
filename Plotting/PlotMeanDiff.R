@@ -47,6 +47,12 @@ PlotMeanDiff <- function(mean.diff,
                          labels = rownames(mean.diff), 
                          col1 = "darkgrey", 
                          col2 = "black", 
+                         open.window = T,
+                         higher.tax = NULL,
+                         set.layout = T,
+                         legend = F,
+                         cond = NULL,
+                         panel.no = NULL,
                          mar1 = c(4,15,1,1),
                          xlim2 = if(min(mean.diff[, 3:5]) < 0 & max(mean.diff[, 3:5]) > 0) {
                              range(mean.diff[, 3:5])
@@ -60,32 +66,89 @@ PlotMeanDiff <- function(mean.diff,
                            }, 
                          xlab1 = "Sequence proportion [%]", 
                          xlab2 = "Log2-fold change") {
-  windows(width = 20, height = (nrow(mean.diff) + 1))
-  par(mfrow = c(1, 2), mar = mar1)
-    
+  
+  if(open.window == T) {
+    windows(width = 20, height = (0.8 * nrow(mean.diff) + 1))
+  }
+  
+  if(set.layout == T) {
+    par(mfrow = c(1, 2))
+  }
+  
+  par(mar = mar1)
   mean.plot <- c()
   for(i in 1:nrow(mean.diff)) {
     mean.plot <- c(mean.plot, mean.diff[i, 1:2], 0)
   }
+  
   bp <- barplot(rev(mean.plot), 
                 horiz = T, 
                 col = rev(rep(c(col1, col2, NA), nrow(mean.diff))), 
                 names.arg = "", 
                 border = NA,
                 xlab = xlab1,
-                yaxs = "i")
+                yaxs = "i",
+                cex.axis = 0.8,
+                lwd = 0.5)
+  
   y.coord <- apply(matrix(bp[-c(3 * (1:nrow(mean.diff)) - 2), 1], 
                           nrow(mean.diff), 
                           2, 
                           byrow = T),
                    1,
                    mean)
-  mtext(rev(as.character(labels)), 
-        side = 2, 
-        at = y.coord, 
-        las = 1,
-        cex = 0.8)
-  par(mar = c(4,2,1,1))
+  
+  if(is.null(higher.tax)) {
+    mtext(rev(as.character(labels)), 
+          side = 2, 
+          at = y.coord, 
+          las = 1,
+          cex = 0.5)
+  } else {
+    mtext(rev(as.character(labels)), 
+          side = 2, 
+          at = bp[seq(2, nrow(bp), 3), 1], 
+          las = 1,
+          cex = 0.5)
+    mtext(rev(higher.tax), 
+          side = 2, 
+          at = bp[seq(3, nrow(bp), 3), 1], 
+          las = 1,
+          cex = 0.5)
+  }
+  
+  if(!is.null(panel.no)) {
+    par(xpd = NA)
+    text(
+      par("usr")[1] - 0.5 * par("usr")[2],
+      par("usr")[4] + 2,
+      labels = panel.no,
+      font = 2,
+      cex = 1.5
+    )
+    par(xpd = F)
+  }
+  
+  if(legend == T) {
+    par(xpd = NA)
+    points(
+      rep(par("usr")[1] - 0.5 * par("usr")[2], 2),
+      c(par("usr")[3] - par("usr")[4] * 0.1, par("usr")[3] - par("usr")[4] * 0.25),
+      pch = 15,
+      cex = 2,
+      col = c(col1, col2)
+    )
+    text(
+      rep(par("usr")[1] - 0.5 * par("usr")[2], 2),
+      c(par("usr")[3] - par("usr")[4] * 0.1, par("usr")[3] - par("usr")[4] * 0.25),
+      labels = cond,
+      cex = 1,
+      pos = 4
+    )
+    par(xpd = F) 
+  }
+  
+  par(mar = c(mar1[1],2,mar1[3],1))
   plot(0,0,
        type = "n",
        ylim = c(min(bp) - 0.5, max(bp) + 0.5),
@@ -93,23 +156,27 @@ PlotMeanDiff <- function(mean.diff,
        axes = F,
        ylab = "",
        xlab = xlab2,
-       yaxs = "i")
-  axis(1)
-  abline(v = 0)
+       yaxs = "i",
+       cex.axis = 0.8)
+  axis(1, cex.axis = 0.8, lwd = 0.5)
+  abline(v = 0, lwd = 0.5)
   segments(rev(mean.diff[, 4]),
            y.coord,
            rev(mean.diff[, 5]),
-           y.coord)
+           y.coord,
+           lwd = 0.5)
   segments(rev(mean.diff[, 4]),
            y.coord - 0.3,
            rev(mean.diff[, 4]),
-           y.coord + 0.3)
+           y.coord + 0.3,
+           lwd = 0.5)
   segments(rev(mean.diff[, 5]),
            y.coord - 0.3,
            rev(mean.diff[, 5]),
-           y.coord + 0.3)
+           y.coord + 0.3,
+           lwd = 0.5)
   points(rev(mean.diff[, 3]),
          y.coord,
-         cex = 2,
-         pch = 1)
+         cex = 1.5,
+         pch = 16)
 }

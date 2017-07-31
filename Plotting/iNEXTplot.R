@@ -38,7 +38,8 @@ iNEXTplot <- function(
   labels = names(input$iNextEst),
   selection = 1:length(input$iNextEst),
   window.new = T,
-  ylim = c(0, max(as.matrix(input2$qD.UCL)))
+  ylim = c(0, max(as.matrix(input2$qD.UCL))),
+  xlim = c(0, max(as.matrix(input2$m)))
 ) {
   
   # format input
@@ -73,7 +74,7 @@ iNEXTplot <- function(
     plot(
       0, 0,
       type = "n",
-      xlim = c(0, max(as.matrix(input2$m))),
+      xlim = xlim,
       ylim = ylim,
       xlab = "Number of sequences",
       ylab = paste("q = ", hill[i], sep = ""),
