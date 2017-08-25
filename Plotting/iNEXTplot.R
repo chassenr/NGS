@@ -39,6 +39,7 @@ iNEXTplot <- function(
   selection = 1:length(input$iNextEst),
   window.new = T,
   ylim = c(0, max(as.matrix(input2$qD.UCL))),
+  dynamic.ylim = F,
   xlim = c(0, max(as.matrix(input2$m)))
 ) {
   
@@ -70,6 +71,11 @@ iNEXTplot <- function(
   par(mfrow = c(1, length(hill) + 1))
 
   for (i in 1:length(hill)) {
+    # adjust ylim
+    if(dynamic.ylim == T) {
+      ylim <- c(0, max(as.matrix(input2$qD.UCL[input2$order[, 1] == hill[i], ]))) 
+    } 
+    
     # create empty plot
     plot(
       0, 0,
