@@ -27,6 +27,7 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
                       colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred"),
                       plot.ratio = c(3, 1),
                       open.window = T,
+                      save.OTU = F,
                       sample.names = colnames(relData)) {
   abund_names <- c()
   for (i in 1:ncol(relData)) {
@@ -61,4 +62,8 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
          ) 
   par(mar = c(5.1, 4.1, 4.1, 2.1))
   par(mfrow = c(1,1))
+  
+  if(save.OTU == T) {
+    return(abund_rel)
+  }
 }
