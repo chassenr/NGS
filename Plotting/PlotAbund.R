@@ -64,6 +64,12 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
   par(mfrow = c(1,1))
   
   if(save.OTU == T) {
-    return(abund_rel)
+    return(
+      data.frame(
+        abund_rel,
+        color = c(colorRampPalette(colorPalette)(nrow(abund_rel) - 1), "darkgrey"),
+        stringsAsFactors = F
+      )
+    )
   }
 }
