@@ -27,16 +27,22 @@ PlotAbund <- function(relData, abund,
                       margin = par()$mar,
                       colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred"),
                       plot.ratio = c(3, 1),
+                      method = c("nmost", "precentage"),
                       open.window = T,
                       save.OTU = F,
                       sample.names = colnames(relData),
                       sort.taxa = F,
                       ...) {
-  abund_names <- c()
-  for (i in 1:ncol(relData)) {
-    abund_names <- unique(c(abund_names, rownames(relData)[order(relData[, i], decreasing = T)][1:abund]))
+  if(method == "nmost") {
+    abund_names <- c()
+    for (i in 1:ncol(relData)) {
+      abund_names <- unique(c(abund_names, rownames(relData)[order(relData[, i], decreasing = T)][1:abund]))
+    }
+    abund_rel0 <- relData[abund_names, ]
   }
-  abund_rel0 <- relData[abund_names, ]
+  if(method == "percentage") {
+    abund_rel0 <- relData[apply(relData, 1, function(x) { max(x) >= abund }), ]
+  }
   if (sort.taxa == T) {
     abund_rel0 <- abund_rel0[order(rownames(abund_rel0)), ]
   }
