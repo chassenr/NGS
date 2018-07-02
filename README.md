@@ -9,3 +9,5 @@ R and bash scripts for processing NGS data sets customized for the computer syst
 * Silvangs_output: R scripts to work with silvangs output (please read README!)
 
 :warning: not all scripts have been thoroughly tested yet. Please let me know, if you run into problems
+
+:warning: Since I moved with my bioinformatic analyses to ZMT, some of the code in this repo is not actively maintained anymore. Please refer to https://gitlab.leibniz-zmt.de/chh/bioinf for newer versions.
