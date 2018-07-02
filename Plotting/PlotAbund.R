@@ -23,17 +23,23 @@
 #=============================================================================
 #documentation end
 
-PlotAbund <- function(relData, abund, margin = par()$mar,
+PlotAbund <- function(relData, abund, 
+                      margin = par()$mar,
                       colorPalette = c("violet", "purple", "blue", "white", "darkgreen", "yellow", "red", "darkred"),
                       plot.ratio = c(3, 1),
                       open.window = T,
                       save.OTU = F,
-                      sample.names = colnames(relData)) {
+                      sample.names = colnames(relData),
+                      sort.taxa = F,
+                      ...) {
   abund_names <- c()
   for (i in 1:ncol(relData)) {
     abund_names <- unique(c(abund_names, rownames(relData)[order(relData[, i], decreasing = T)][1:abund]))
   }
   abund_rel0 <- relData[abund_names, ]
+  if (sort.taxa == T) {
+    abund_rel0 <- abund_rel0[order(rownames(abund_rel0)), ]
+  }
   abund_rel <- rbind(abund_rel0, 100 - colSums(abund_rel0))
   rownames(abund_rel)[nrow(abund_rel)] <- "other"
   abund_rel <- as.matrix(abund_rel)
@@ -49,7 +55,8 @@ PlotAbund <- function(relData, abund, margin = par()$mar,
           las = 2,
           ylab = "Relative sequence abundance [%]",
           names.arg = sample.names,
-          cex.names = 0.8)
+          cex.names = 0.8,
+          ...)
   par(mar = c(1,1,1,1))
   plot.new()
   legend("center", 
