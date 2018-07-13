@@ -1,9 +1,9 @@
 #documentation start
 #=============================================================================
 # File data
-# creator: Christiane HassenrÃ¼ck
+# creator: Christiane Hassenrück
 # acknowledgements: Alban Ramette
-# primary authority: Christiane HassenrÃ¼ck
+# primary authority: Christiane Hassenrück
 # other authorities: 
 #=============================================================================
 # File contents
@@ -14,10 +14,15 @@
 # Data - sample by OTU table (samples are columns)
 # n - number of iterations (how many times do you want to subsample)
 # sub - library size (how many sequences per sample)
+# subTable - should one iteration of rarefied OTU be writen to file (logical)
 #
 # output:
-# list with values (number of OTU, chao1, inverse Simpson, absolute and relative singletons, absolute doubletons)
-#  for each iteration
+# iterations - list with values (number of OTU, chao1, inverse Simpson, percentage of OTUs that are
+#   absolute and relative singletons, and absolute doubletons) for each iteration
+# summaryAlpha - mean of iterations for above indices of rarefyied data set
+# summaryHill - mean of iterations for Hill numbers 0, 1, 2 of rarefyied data set
+# summaryHillRaw - Hill numbers 0, 1, 2 of original data set
+#  
 # 
 # dependencies:
 #  require(vegan)
