@@ -125,7 +125,7 @@ ReadAmplicon <- function(otu, tax, silva, domain,
       #select only the ranks of interest
       Taxa <- Tax[,c("domain","phylum","class","order","family","genus")] 
     }
-    if (domain == "Eukaroyta") {
+    if (domain == "Eukaryota") {
       Taxa <- Tax[,c("domain","major_clade","kingdom","phylum","class","order","family","genus")] 
     }
     rownames(Taxa) <- rownames(Data0b)
